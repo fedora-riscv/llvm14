@@ -71,7 +71,7 @@
 
 Name:		%{pkg_name}
 Version:	%{maj_ver}.%{min_ver}.%{patch_ver}%{?rc_ver:~rc%{rc_ver}}
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -355,7 +355,7 @@ ln -s -t %{buildroot}%{_libdir}/bfd-plugins/ ../LLVMgold.so
 # Add version suffix to binaries
 for f in %{buildroot}/%{install_bindir}/*; do
   filename=`basename $f`
-  ln -s ../../../%{install_bindir}/$filename %{buildroot}/%{_bindir}/$filename%{exec_suffix}
+  ln -s ../../%{install_bindir}/$filename %{buildroot}/%{_bindir}/$filename%{exec_suffix}
 done
 
 # Move header files
@@ -552,6 +552,9 @@ fi
 %endif
 
 %changelog
+* Mon Sep 12 2022 Nikita Popov <npopov@redhat.com> - 14.0.5-4
+- Fix symlinks for versioned binaries
+
 * Thu Jul 21 2022 Fedora Release Engineering <releng@fedoraproject.org> - 14.0.5-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
 
