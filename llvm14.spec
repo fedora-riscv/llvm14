@@ -91,6 +91,7 @@ Patch0:		0001-cmake-Allow-shared-libraries-to-customize-the-soname.patch
 Patch1:		0001-XFAIL-missing-abstract-variable.ll-test-on-ppc64le.patch
 Patch2:		0001-Disable-CrashRecoveryTest.DumpStackCleanup-test-on-a.patch
 
+BuildRequires:	sed
 BuildRequires:	gcc
 BuildRequires:	gcc-c++
 BuildRequires:	clang
@@ -213,6 +214,7 @@ LLVM's modified googletest sources.
 %build
 
 %ifarch s390 s390x riscv64
+# No LTO support with Clang on riscv64
 # Fails with "exceeded PCRE's backtracking limit"
 %global _lto_cflags %nil
 %else
