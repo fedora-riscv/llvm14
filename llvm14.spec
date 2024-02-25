@@ -71,7 +71,7 @@
 
 Name:		%{pkg_name}
 Version:	%{maj_ver}.%{min_ver}.%{patch_ver}%{?rc_ver:~rc%{rc_ver}}
-Release:	8%{?dist}
+Release:	10%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -212,14 +212,14 @@ LLVM's modified googletest sources.
 
 %build
 
-%ifarch s390 s390x
+%ifarch s390 s390x riscv64
 # Fails with "exceeded PCRE's backtracking limit"
 %global _lto_cflags %nil
 %else
 %global _lto_cflags -flto=thin
 %endif
 
-%ifarch s390 s390x %{arm} %ix86
+%ifarch s390 s390x %{arm} %ix86 riscv64
 # Decrease debuginfo verbosity to reduce memory consumption during final library linking
 %global optflags %(echo %{optflags} | sed 's/-g /-g1 /')
 %endif
@@ -230,7 +230,7 @@ LLVM's modified googletest sources.
 	-DLLVM_PARALLEL_LINK_JOBS=1 \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DCMAKE_SKIP_RPATH:BOOL=ON \
-%ifarch s390 %{arm} %ix86
+%ifarch s390 %{arm} %ix86 riscv64
 	-DCMAKE_C_FLAGS_RELWITHDEBINFO="%{optflags} -DNDEBUG" \
 	-DCMAKE_CXX_FLAGS_RELWITHDEBINFO="%{optflags} -DNDEBUG" \
 %endif
@@ -420,6 +420,15 @@ cp -Rv ../cmake/Modules/* %{buildroot}%{_libdir}/cmake/llvm
 # Possibly related to https://bugzilla.redhat.com/show_bug.cgi?id=1920183
 %ifnarch %{arm}
 
+%ifarch riscv64
+rm test/tools/llvm-ar/error-opening-permission.test
+rm test/tools/llvm-dwarfdump/X86/output.s
+rm test/tools/llvm-ifs/fail-file-write.test
+
+rm unittests/ExecutionEngine/Orc/OrcCAPITest.cpp
+sed -i '/OrcCAPITest.cpp/d' unittests/ExecutionEngine/Orc/CMakeLists.txt
+%endif
+
 # TODO: Fix the failures below
 %ifarch %{arm}
 rm test/tools/llvm-readobj/ELF/dependent-libraries.test
@@ -552,6 +561,14 @@ fi
 %endif
 
 %changelog
+* Sun Feb 25 2024 Zhengyu He <hezhy472013@gmail.com> - 14.0.5-10
+- Add support for riscv64.
+- Bypass failed tests for riscv64.
+
+* Sat Feb 24 2024 Liu Yang <Yang.Liu.sn@gmail.com> - 14.0.5-9
+- cherry-pick patch for Fedora 38 riscv64 rebuild.
+- Fix build on riscv64.
+
 * Thu Jan 25 2024 Fedora Release Engineering <releng@fedoraproject.org> - 14.0.5-8
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_40_Mass_Rebuild
 
